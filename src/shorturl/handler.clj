@@ -12,7 +12,8 @@
   (dec (count @url-records)))
 
 ;; a user is a map { :username :password }
-;; users is a map { username -> user }
+;; users is a map { userid -> user }
+;; where userid is some hash of the username (currently hash-with-salt)
 (def users (atom {}))
 
 (def hash-with-salt
@@ -66,15 +67,23 @@
           (if (user? username)
             (resp/response "Sorry bud. You had better hope that you can figure out your password.")
             (do
-              (create-user user)
+              (create-user! user)
               (resp/response (str "Thank you " username " you are now signed up."))))))
 
   (GET "/user/:name" [name] (str name))
   (GET "/users" [] (str @users))
-  (GET "/:id" [id] (let [id (read-string id)
-                         record (nth @url-records id)]
-                     (swap! url-records #(update-in % [id :count] inc))
-                     (resp/redirect (:url (nth @url-records id)))))
+  (GET "/records" [] (str @url-records))
+
+  (GET "/u/:userid/url/:url" [userid url] (let [id (read-string id)
+                                                record (nth @url-records id)]
+                                            (swap! url-records #(update-in % [id :count] inc))
+                                            (resp/redirect (:url (nth @url-records id)))))
+
+  ;(GET "/:id" [id] (let [id (read-string id)
+  ;                       record (nth @url-records id)]
+  ;                   (swap! url-records #(update-in % [id :count] inc))
+  ;                   (resp/redirect (:url (nth @url-records id)))))
+
   ;(route/resources "/")
   (route/not-found "Not Found"))
 
