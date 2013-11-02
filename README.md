@@ -1,6 +1,17 @@
 # shorturl
 
-FIXME
+A crappy little url shortener web application, a quick exercise in web dev.  I
+enjoyed using Compojure for this.
+
+### TODO:
+
+* Do something better than keeping data in memory (which will disappear when
+  the application crashes)
+* More robust infrastructure for users, i.e. sessions.
+* click data visualization
+* realtime click data visualization
+
+And a whole lot of other interesting stuff too: http://gist.io/7268187
 
 ## Prerequisites
 
@@ -14,6 +25,5 @@ To start a web server for the application, run:
 
     lein ring server
 
-## License
-
-Copyright © 2013 FIXME
+A page should open in the nearest web browser, but if it doesn't nagivate over
+to `localhost:3000`.
