@@ -7,8 +7,8 @@ enjoyed using Compojure for this.
 
 * Do something better than keeping data in memory.
 * More robust infrastructure for users, i.e. sessions.
-* click data visualization
-* realtime click data visualization
+* Click data visualization
+* Realtime click data visualization
 
 And a whole lot of other interesting stuff too: http://gist.io/7268187
 
