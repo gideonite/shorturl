@@ -34,10 +34,12 @@
         salted (hash-with-salt (:password user))]
     (= salted (:password fetched-user))))
 
-(defn create-user
+(defn create-user!
   [user]
   (swap! users #(assoc % (hash-with-salt (:username user))
                        (update-in user [:password] hash-with-salt))))
+
+(create-user! {:username "" :password ""})
 
 (defroutes app-routes
   (GET "/" [] (resp/redirect "/login"))
@@ -71,20 +73,14 @@
               (resp/response (str "Thank you " username " you are now signed up."))))))
 
   (GET "/user/:name" [name] (str name))
+
+  (GET "/url/:id" [id] (let [id (read-string id)
+                             record (nth @url-records id)]
+                         (swap! url-records #(update-in % [id :count] inc))
+                         (resp/redirect (:url (nth @url-records id)))))
+
   (GET "/users" [] (str @users))
   (GET "/records" [] (str @url-records))
-
-  (GET "/u/:userid/url/:url" [userid url] (let [id (read-string id)
-                                                record (nth @url-records id)]
-                                            (swap! url-records #(update-in % [id :count] inc))
-                                            (resp/redirect (:url (nth @url-records id)))))
-
-  ;(GET "/:id" [id] (let [id (read-string id)
-  ;                       record (nth @url-records id)]
-  ;                   (swap! url-records #(update-in % [id :count] inc))
-  ;                   (resp/redirect (:url (nth @url-records id)))))
-
-  ;(route/resources "/")
   (route/not-found "Not Found"))
 
 (def app
