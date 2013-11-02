@@ -24,17 +24,17 @@
   user -> boolean
   "
   [name]
-  (not (nil? (@users name))))
+  (not (nil? (@users (hash-with-salt name)))))
 
 (defn password?
   [user]
-  (let [fetched-user (@users (:username user))
+  (let [fetched-user (@users (hash-with-salt (:username user)))
         salted (hash-with-salt (:password user))]
     (= salted (:password fetched-user))))
 
 (defn create-user
   [user]
-  (swap! users #(assoc % (:username user)
+  (swap! users #(assoc % (hash-with-salt (:username user))
                        (update-in user [:password] hash-with-salt))))
 
 (defroutes app-routes
@@ -44,10 +44,13 @@
   (POST "/login" [username password]
         (if (user? username)
           (if (password? {:username username :password password})
-            (resp/file-response "resources/public/index.html")
+            ;(resp/file-response "resources/public/index.html")
+            (resp/redirect (str "u/" (hash-with-salt username)))
             (resp/response "invalid password"))
           (resp/response
             (str "username \"" username "\" not found, please sign up"))))
+
+  (GET "/u/:id" [id] (resp/response id))
 
   (GET "/signup" [] (resp/file-response "resources/public/signup.html"))
   (POST "/signup" [username password]
