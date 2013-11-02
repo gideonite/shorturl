@@ -5,8 +5,7 @@ enjoyed using Compojure for this.
 
 ### TODO:
 
-* Do something better than keeping data in memory (which will disappear when
-  the application crashes)
+* Do something better than keeping data in memory.
 * More robust infrastructure for users, i.e. sessions.
 * click data visualization
 * realtime click data visualization
