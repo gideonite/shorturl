@@ -6,9 +6,9 @@
 
 (def url-records (atom []))
 
-(defn store-url-return-id
-  [url]
-  (swap! url-records conj {:url url :count 0})
+(defn url-record
+  [userid url]
+  (swap! url-records conj {:url url :userid userid :count 0})
   (dec (count @url-records)))
 
 ;; a user is a map { :username :password }
@@ -27,6 +27,7 @@
   (not (nil? (@users (hash-with-salt name)))))
 
 (defn password?
+  "checks whether a user's password is equal to the stored password"
   [user]
   (let [fetched-user (@users (hash-with-salt (:username user)))
         salted (hash-with-salt (:password user))]
@@ -50,7 +51,14 @@
           (resp/response
             (str "username \"" username "\" not found, please sign up"))))
 
-  (GET "/u/:id" [id] (resp/response id))
+  (GET "/u/:id" [id]
+       (if (nil? (@users (read-string id)))
+         (resp/response "get outta here")
+         (resp/file-response "resources/public/index.html")))
+
+  (POST "/u/:userid" [userid url]
+        (let [record (url-record userid url)]
+          (str "<a href='" url "'>" (str record) "</a>" " ")))
 
   (GET "/signup" [] (resp/file-response "resources/public/signup.html"))
   (POST "/signup" [username password]
@@ -67,8 +75,6 @@
                          record (nth @url-records id)]
                      (swap! url-records #(update-in % [id :count] inc))
                      (resp/redirect (:url (nth @url-records id)))))
-  (POST "/" [url] (let [record (store-url-return-id url)]
-                    (str "<a href='" url "'>" (str record) "</a>" " ")))
   ;(route/resources "/")
   (route/not-found "Not Found"))
 
