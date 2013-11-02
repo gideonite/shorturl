@@ -4,9 +4,14 @@
             [compojure.route :as route]
             [ring.util.response :as resp]))
 
+;; a list of url-records.
+;; A url-record is a {:url :userid :count} where userid is the user that
+;; created the record and count is the number of visits to that url
 (def url-records (atom []))
 
-(defn url-record
+(defn url-record!
+  "creates a url-record
+  userid, url -> record id (index)"
   [userid url]
   (swap! url-records conj {:url url :userid userid :count 0})
   (dec (count @url-records)))
@@ -48,7 +53,6 @@
   (POST "/login" [username password]
         (if (user? username)
           (if (password? {:username username :password password})
-            ;(resp/file-response "resources/public/index.html")
             (resp/redirect (str "u/" (hash-with-salt username)))
             (resp/response "invalid password"))
           (resp/response
@@ -60,7 +64,7 @@
          (resp/file-response "resources/public/index.html")))
 
   (POST "/u/:userid" [userid url]
-        (let [record (url-record userid url)]
+        (let [record (url-record! userid url)]
           (str "<a href='" url "'>" (str record) "</a>" " ")))
 
   (GET "/signup" [] (resp/file-response "resources/public/signup.html"))
